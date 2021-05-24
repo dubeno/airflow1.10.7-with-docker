@@ -23,13 +23,13 @@
     
     docker-compose -f docker-compose-CeleryExecutor.yml up -d
   NB : If you want to have DAGs example loaded (default=False), you've to set the following environment variable :
-  <LOAD_EX=n/>
+  ```LOAD_EX=n````
     
     docker run -d -p 8080:8080 -e LOAD_EX=y naresh240/airflow
 # Scale the number of workers
     docker-compose -f docker-compose-CeleryExecutor.yml scale worker=5
 # Running other airflow commands
-  If you want to run other airflow sub-commands, such as <list_dags/> or <clear/> you can do so like this:
+  If you want to run other airflow sub-commands, such as ````list_dags or clear```` you can do so like this:
     
     docker run --rm -ti naresh240/airflow airflow list_dags
   or with your docker-compose set up like this:
