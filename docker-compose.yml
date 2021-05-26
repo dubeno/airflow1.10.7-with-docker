@@ -1,0 +1,57 @@
+version: "3.7"
+services:  
+  # postgres used by airflow
+  postgres:
+    image: postgres:9.6
+    networks:
+      - default_net
+    volumes: 
+    # Create Test database on Postgresql
+      - ./postgres-scripts:/docker-entrypoint-initdb.d
+    environment:
+      - POSTGRES_USER=airflow
+      - POSTGRES_PASSWORD=airflow
+      - POSTGRES_DB=airflow
+    ports:
+      - "5432:5432"
+
+  airflow-webserver:
+    image: naresh240/airflow
+    restart: always
+    networks:
+      - default_net
+    depends_on:
+      - postgres
+    environment:
+      - LOAD_EX=n
+      - FERNET_KEY=46BKJoQYlPPOexq0OhDZnIlNepKFf87WFwLbfzqDDho=
+      - EXECUTOR=Local
+    volumes:
+      - ./dags:/usr/local/airflow/dags #DAG folder
+    ports:
+      - "8080:8080"
+    command: webserver
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 30s
+      retries: 3
+    restart: always
+ 
+  airflow-scheduler:
+    image: naresh240/airflow
+    restart: always
+    depends_on:
+      - airflow-webserver
+    networks:
+      - default_net
+    volumes:
+      - ./dags:/usr/local/airflow/dags
+    environment:
+      - LOAD_EX=n
+      - FERNET_KEY=46BKJoQYlPPOexq0OhDZnIlNepKFf87WFwLbfzqDDho=
+      - EXECUTOR=Local
+    command: scheduler
+
+networks:
+    default_net:
